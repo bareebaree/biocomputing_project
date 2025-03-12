@@ -1,5 +1,6 @@
 from Bio import SeqIO
 from Bio import pairwise2
+import datetime
 
 # File paths
 database_path = "./data/dog_breeds.fa"
@@ -45,7 +46,11 @@ percent_identity = (num_matches / total_length) * 100
 print(f"Percent Identity: {percent_identity:.2f}%")
 
 # Save results to a file
-output_file = "alignment_results.txt"
+
+current_datetime = datetime.datetime.now()
+timestamp = current_datetime.timestamp()
+
+output_file = f"./results/{timestamp}_alignment_results.txt"
 with open(output_file, "w") as f:
     f.write(f"Query ID: {query_record.id}\n")
     f.write(f"Query sequence: {query_seq}\n")
