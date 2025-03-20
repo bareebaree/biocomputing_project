@@ -2,14 +2,19 @@ import random
 import datetime
 import multiprocessing
 from Bio import SeqIO, pairwise2
-from tqdm import tqdm # For progress bars
+from tqdm import tqdm  # For progress bars
+from Bio.Seq import Seq
+from Bio.SeqRecord import SeqRecord
+
+
+
+
 
 # File paths
-database_path = "./data/dog_breeds.fa"
-query_path = "./data/mystery.fa"
+database_path= "C:\\Users\\james\\Masters_Degree\\biocomputing\\research_project\\pairwise_alignment_project\\data\\dog_breeds.fa"
+query_path = "C:\\Users\\james\\Masters_Degree\\biocomputing\\research_project\\pairwise_alignment_project\\data\\mystery.fa"
 
-# Support for parallisation
-
+# Support for parallelization
 def get_num_cores(user_input):
     """Validates and returns the number of cores to use."""
     max_cores = multiprocessing.cpu_count()
@@ -18,7 +23,7 @@ def get_num_cores(user_input):
     return user_input
 
 # Set number of cores (change as needed)
-USER_NUM_CORES = 4  
+USER_NUM_CORES = 2  
 num_cores = get_num_cores(USER_NUM_CORES)  
 
 print(f"Using {num_cores} CPU cores for parallel computation...")
@@ -51,19 +56,23 @@ print(f"\nBest match: {best_match} with score: {best_score}")
 # Perform full sequence alignment
 alignments = pairwise2.align.globalxx(query_seq, best_match_seq)
 
+# Get the best alignment
+best_alignment = alignments[0]
+aligned_query_seq = best_alignment.seqA
+aligned_best_match_seq = best_alignment.seqB
+
 # Print the best alignment
 print("\nBest alignment:")
-print(pairwise2.format_alignment(*alignments[0]))
+print(pairwise2.format_alignment(*best_alignment))
 
 # Compute percent identity
-top_alignment = alignments[0]
-num_matches = sum(1 for a, b in zip(top_alignment.seqA, top_alignment.seqB) if a == b)
-total_length = max(len(top_alignment.seqA), len(top_alignment.seqB))
+num_matches = sum(1 for a, b in zip(aligned_query_seq, aligned_best_match_seq) if a == b)
+total_length = max(len(aligned_query_seq), len(aligned_best_match_seq))
 percent_identity = (num_matches / total_length) * 100
 
 print(f"\nPercent Identity: {percent_identity:.2f}%")
 
-# ---------------- Empirical p value calculation ----------------
+# ---------------- Empirical P-value Calculation ----------------
 
 def shuffle_sequence(seq):
     """Shuffle a sequence while preserving its composition."""
@@ -77,7 +86,7 @@ def shuffle_and_align(_):
     return pairwise2.align.globalxx(shuffled_query, best_match_seq, score_only=True)
 
 num_shuffles = 100  # Number of shuffled alignments
-num_cores = min(2, multiprocessing.cpu_count())  
+num_cores = min(4, multiprocessing.cpu_count())  
 
 print("\nComputing empirical P-value with shuffled sequences...")
 
@@ -88,19 +97,33 @@ for _ in tqdm(range(num_shuffles), desc="Shuffling and aligning", unit="shuffle"
     score = pairwise2.align.globalxx(shuffled_query, best_match_seq, score_only=True)
     random_scores.append(score)
 
-
 # Compute empirical P-value
 empirical_p_value = sum(s >= best_score for s in random_scores) / num_shuffles
 
 print(f"\nEmpirical P-value: {empirical_p_value:.8f}")
 
-
 # ---------------- Save results ----------------
 
 current_datetime = datetime.datetime.now()
-timestamp = current_datetime.timestamp()
+timestamp = current_datetime.strftime("%Y%m%d_%H%M%S")
 
-output_file = f"./results/{timestamp}_alignment_results.txt"
+# Create SeqRecords for the shuffled aligned query and the best-match sequence
+shuffled_query_record_aligned = SeqRecord(Seq(shuffled_query), id=f"{query_record.id}_shuffled", description="Shuffled aligned query sequence")
+best_match_record_aligned = SeqRecord(Seq(aligned_best_match_seq), id=best_match, description="Aligned best match sequence")
+
+# Generate filename for the shuffled alignment FASTA file
+shuffled_alignment_fasta_file = f"C:\\Users\\james\\Masters_Degree\\biocomputing\\research_project\\pairwise_alignment_project\\results\\{timestamp}_shuffled_alignment.fasta"
+
+# Write shuffled aligned query and aligned best-match sequences to FASTA
+with open(shuffled_alignment_fasta_file, "w") as fasta_out:
+    SeqIO.write([shuffled_query_record_aligned, best_match_record_aligned], fasta_out, "fasta")
+
+print(f"\nShuffled alignment saved as FASTA file: {shuffled_alignment_fasta_file}")
+
+output_file = f"C:\\Users\\james\\Masters_Degree\\biocomputing\\research_project\\pairwise_alignment_project\\results\\{timestamp}_alignment_results.txt"
+alignment_fasta_file = f"C:\\Users\\james\\Masters_Degree\\biocomputing\\research_project\\pairwise_alignment_project\\results\\{timestamp}_alignment.fasta"
+
+# Save results in a text file
 with open(output_file, "w") as f:
     f.write(f"Query ID: {query_record.id}\n")
     f.write(f"Query sequence: {query_seq}\n")
@@ -109,6 +132,18 @@ with open(output_file, "w") as f:
     f.write(f"Percent Identity: {percent_identity:.2f}%\n")
     f.write(f"Empirical P-value: {empirical_p_value:.20f}\n\n")
     f.write("Alignment:\n")
-    f.write(pairwise2.format_alignment(*alignments[0]))
+    f.write(pairwise2.format_alignment(*best_alignment))
 
 print(f"\nResults saved to {output_file}")
+
+# ---------------- Save Alignment as FASTA ----------------
+
+# Create SeqRecords for aligned sequences
+query_record_aligned = SeqRecord(Seq(aligned_query_seq), id=query_record.id, description="Aligned query sequence")
+best_match_record_aligned = SeqRecord(Seq(aligned_best_match_seq), id=best_match, description="Aligned best match sequence")
+
+# Write aligned sequences to FASTA
+with open(alignment_fasta_file, "w") as fasta_out:
+    SeqIO.write([query_record_aligned, best_match_record_aligned], fasta_out, "fasta")
+
+print(f"\nAlignment saved as FASTA file: {alignment_fasta_file}")
