@@ -9,3 +9,15 @@ Identify the most similar sequence in a dataset to an input sequence.
 2. Computing probabilities across dataset.
 
 3. Reconstructing a phylogenetic tree with the dataset and input sequence.
+
+To run:
+
+1. Download entire project folder 
+2. Ensure python 3.12 is installed
+3. ensure following libraries are installed:
+  -BioPython
+  -Matplotlib
+  -Pytest
+  -datetime
+  -tqdm
+
