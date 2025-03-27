@@ -1,9 +1,3 @@
-# -*- coding: utf-8 -*-
-"""
-Created on Wed Mar 26 21:31:44 2025
-
-@author: james
-"""
 
 from Bio import pairwise2
 import random

@@ -38,7 +38,7 @@ constructor = DistanceTreeConstructor()
 tree = constructor.nj(dm)
 
 # Save tree in Newick format
-Phylo.write(tree, "phylogenetic_tree.nwk", "newick")
+Phylo.write(tree, "./results/phylogenetic_tree.nwk", "newick")
 
 
 # Apply pruning function
@@ -48,5 +48,4 @@ tree = remove_inner_labels(tree)
 # Display ASCII representation
 Phylo.draw_ascii(tree)
 
-# Plot the tree
-plot_tree(tree)
+

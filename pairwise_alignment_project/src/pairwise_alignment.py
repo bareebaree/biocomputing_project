@@ -1,12 +1,10 @@
-import random
+
 import datetime
-import multiprocessing
 from Bio import SeqIO, pairwise2
-from tqdm import tqdm  # For progress bars
+from tqdm import tqdm
 from Bio.Seq import Seq
 from Bio.SeqRecord import SeqRecord
-import pairwise_functions
-from pairwise_functions import shuffle_and_align
+from pairwise_functions import shuffle_and_align, shuffle_sequence
 """
 This script uses the pairwise alignment module from Biopython to calculate the best match for a query sequence against a set database,
 and calculates this by by using a scoring module in Biopython. It then calculates the P value of the alignment appearing by chance.
@@ -75,7 +73,7 @@ print(f"\nPercent Identity: {percent_identity:.2f}%")
 
 # Number of shuffles allocated.
 
-num_shuffles = 1
+num_shuffles = 100
 
 print("\nComputing empirical P-value with shuffled sequences...")
 

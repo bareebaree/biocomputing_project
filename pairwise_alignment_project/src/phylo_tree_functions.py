@@ -36,4 +36,4 @@ def plot_tree(tree: Tree, font_size: int = 6, figsize=(10, 20), dpi: int = 100) 
     plt.rc("font", size=font_size)
     fig, ax = plt.subplots(figsize=figsize, dpi=dpi)
     Phylo.draw(tree, axes=ax)
-    plt.show()### append query sequence to database
+    plt.savefig("tree.png")  # or whatever filename you want
