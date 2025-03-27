@@ -1,57 +1,19 @@
-# -*- coding: utf-8 -*-
-"""
-Created on Wed Mar 19 10:51:08 2025
-
-@author: james
-"""
 
 from Bio.Align import MultipleSeqAlignment
 from Bio.Phylo.TreeConstruction import DistanceCalculator, DistanceTreeConstructor
 from Bio import Phylo
-import matplotlib.pyplot as plt
-import matplotlib
 from Bio import SeqIO
-
-
-def remove_inner_labels(tree) -> Phylo.BaseTree.Tree:
-    """ 
-    Function to remove inner labels for nodes in tree, by selecting labels, then replacing value with None to make tree clearer to read.
-    
-    PARAMETERS: tree -> (Phylo.BaseTree.Tree) tree object
-    
-    RETURNS: tree -> tree object with non terminal labels removed.
-    
-    """
-    for clade in tree.find_clades():
-        if not clade.is_terminal():  # Internal node
-            clade.name = None  # Remove "Inner" labels
-    return tree
+from phylo_tree_functions import remove_inner_labels, plot_tree
 
 
 
-def plot_tree(tree) -> Phylo.BaseTree.Tree:
-    """
-    "Function that calls matplotlib and Phylo.draw to create a phylogenetic tree plot"
-
-    PARAMETERS: tree -> (Phylo.BaseTree.Tree) tree object
-
-    RETURNS: 
-    None.
-    Plots the tree.
-
-    """
-    
-    matplotlib.rc("font", size=6)
-    fig, ax = plt.subplots(figsize=(10, 20), dpi=100)
-    Phylo.draw(tree, axes=ax)  # ✅ Pass tree object directly
-    plt.show()
-    
-### append query sequence to database
 
 
-# Define file paths
-database_path = "C:\\Users\\james\\Masters_Degree\\biocomputing\\research_project\\pairwise_alignment_project\\data\\dog_breeds.fa"
-query_path = "C:\\Users\\james\\Masters_Degree\\biocomputing\\research_project\\pairwise_alignment_project\\data\\mystery.fa"
+# Define file paths. These are default filepaths. If you need to do a different query or dataset, replace the filepaths with correct directories.
+# The database uses iterative pairwise alignment so does not scale particularly well for larger tasks. If larger databases, or longer sequences are desired,
+# it is recommended to use a MSA tool such as MAFFT or ClustalOmega.
+database_path = "./data/dog_breeds.fa"
+query_path = "./data/mystery.fa"
 
 
 
@@ -77,7 +39,6 @@ tree = constructor.nj(dm)
 
 # Save tree in Newick format
 Phylo.write(tree, "phylogenetic_tree.nwk", "newick")
-
 
 
 # Apply pruning function

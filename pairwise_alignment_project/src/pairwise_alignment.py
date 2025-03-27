@@ -5,7 +5,8 @@ from Bio import SeqIO, pairwise2
 from tqdm import tqdm  # For progress bars
 from Bio.Seq import Seq
 from Bio.SeqRecord import SeqRecord
-
+import pairwise_functions
+from pairwise_functions import shuffle_and_align
 """
 This script uses the pairwise alignment module from Biopython to calculate the best match for a query sequence against a set database,
 and calculates this by by using a scoring module in Biopython. It then calculates the P value of the alignment appearing by chance.
@@ -13,30 +14,7 @@ and calculates this by by using a scoring module in Biopython. It then calculate
 """
 
 
-def shuffle_sequence(seq) -> str:
-    """Shuffle a sequence while preserving its composition.
-    
-    PARAMETERS: seq ->(str): Any given sequence from the ID:sequence dictionary
-    
-    RETURNS:  Shuffled sequence appended to a shuffled sequence list.
-    
-    """
-    seq_list = list(seq)
-    random.shuffle(seq_list)
-    return "".join(seq_list)
 
-def shuffle_and_align():
-    """Shuffles the query sequence and computes an alignment score. Calls shuffle_sequence() to do so.
-       Scoring scheme = match = +1
-       gap/mismatch = 0
-       
-    PARAMETERS: query_seq -> (str): The query sequence.
-    
-    RETURNS: The score of each shuffled query 
-    
-    """
-    shuffled_query = shuffle_sequence(query_seq)
-    return pairwise2.align.globalxx(shuffled_query, best_match_seq, score_only=True)
 
 
 # File paths
@@ -104,7 +82,7 @@ print("\nComputing empirical P-value with shuffled sequences...")
 # Sequential calculation with progress bar, loops calling shuffle_and_align()
 random_scores = []
 for _ in tqdm(range(num_shuffles), desc="Shuffling and aligning", unit="shuffle"):
-    score = shuffle_and_align()
+    score = shuffle_and_align(query_seq, best_match_seq)
     random_scores.append(score)
 
 # Compute empirical P-value
